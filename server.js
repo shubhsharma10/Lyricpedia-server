@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(function(req, res, next) {
     var allowedOrigins = ['http://localhost:4200',
-                    'https://lyricpedia-ssharma.herokuapp.com'];
+                    'https://lyricpedia-client.herokuapp.com'];
     var origin = req.headers.origin;
     if(allowedOrigins.indexOf(origin) > -1) {
         res.header("Access-Control-Allow-Origin", origin);
