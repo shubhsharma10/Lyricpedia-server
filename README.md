@@ -1,10 +1,10 @@
-# cs5610-summer1-nodejs-ssharma
+# Lyricpedia server
 # Shubham Sharma
 
-## Angular front end repo
-- https://github.com/shubhsharma10/cs5610-summer1-angular-ssharma
+## Front end repo
+- https://github.com/shubhsharma10/Lyricpedia-client
 
 ## Assignment 5 extra credit
 
 ## Hosted on
-- https://cs5610-summer1-nodejs-ssharma.herokuapp.com/
+- https://lyricpedia-server.herokuapp.com/

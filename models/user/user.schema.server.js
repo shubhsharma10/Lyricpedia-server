@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var userSchema = mongoose.Schema({
     username: String,
     password: String,
-    userType: {type: String, default: 'Free'},  // "Admin" / "Free" / "Paid"
+    userType: {type: String, default: 'User'},  // "Admin" / "User" / "Premium"
     firstName: String,
     lastName: String,
     email: String,

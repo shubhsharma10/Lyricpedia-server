@@ -12,8 +12,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(function(req, res, next) {
-    var allowedOrigins = ['http://localhost:3000',
-                    'https://lyricpedia.herokuapp.com'];
+    var allowedOrigins = ['http://localhost:4200',
+                    'https://lyricpedia-ssharma.herokuapp.com'];
     var origin = req.headers.origin;
     if(allowedOrigins.indexOf(origin) > -1) {
         res.header("Access-Control-Allow-Origin", origin);
@@ -37,5 +37,4 @@ app.get('/', function (req, res) {
 });
 
 require('./services/user.service.server')(app);
-require('./services/section.service.server')(app);
 app.listen(PORT);
