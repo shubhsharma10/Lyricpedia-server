@@ -27,12 +27,15 @@ function updateSong(songId,incomingUserId,rating) {
     return findSongById(songId)
         .then(function(song) {
             var userExists = false;
+            console.log('incomingRating: '+rating);
             const users = song.listOfUsers;
             for(var x = 0;x < song.listOfUsers.length ; x++) {
                 var user = song.listOfUsers[x];
                 if(user.userId.toString() === incomingUserId) {
                     userExists = true;
                     const existingRating = user.rating;
+                    console.log('existingRating: '+existingRating);
+                    //console.log('incomingRating: '+rating);
                     if(existingRating !== rating) {
                         if(rating === 'like') {
                             song.likes += 1;
@@ -63,7 +66,6 @@ function updateSong(songId,incomingUserId,rating) {
                 })
         })
         .then(function (updatedSong) {
-            console.log(updatedSong);
             return updatedSong;
         })
         .catch(function (error) {
