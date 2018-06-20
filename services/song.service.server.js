@@ -56,7 +56,11 @@ module.exports = function (app) {
                             }
                         }
                         console.log(rating);
-                        songEntry.push({track_id: songs[i].track_id, track_name: songs[i].track_name, rating: rating });
+                        songEntry.push({track_id: songs[i].track_id,
+                            track_name: songs[i].track_name,
+                            likes: songs[i].likes,
+                            dislikes: songs[i].dislikes,
+                            rating: rating });
                     }
                     console.log(songEntry);
                     res.json(songEntry)

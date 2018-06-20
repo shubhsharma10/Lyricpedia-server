@@ -36,6 +36,7 @@ app.get('/', function (req, res) {
     res.send('Hello World, This is Lyricpedia server')
 });
 
+require('./services/playlist.service.server')(app);
 require('./services/song.service.server')(app);
 require('./services/user.service.server')(app);
 app.listen(PORT);
