@@ -5,6 +5,7 @@ module.exports = function (app) {
     app.delete('/api/playlist/:playlistId',deletePlaylist);
     app.post('/api/playlist', createPlaylist);
     app.get('/api/user/playlist', findPlaylistsForUser);
+    app.get('/api/user/:userId/playlist', findPlaylistsForUserByUserId);
     app.put('/api/playlist/:playlistId/add',addToPlaylist);
     app.put('/api/playlist/remove',removeFromPlaylist);
     app.put('/api/playlist/:playlistId/remove',removeSongFromPlaylist);
@@ -97,6 +98,18 @@ module.exports = function (app) {
         if(req.session['currentUser']) {
             const user = req.session['currentUser'];
             const userId = user._id;
+            playlistModel.findPlaylistsForUser(userId)
+                .then(function (playlists) {
+                    res.send(playlists);
+                })
+        } else {
+            res.sendStatus(500);
+        }
+    }
+
+    function findPlaylistsForUserByUserId(req,res) {
+        var userId = req.params['userId'];
+        if(userId) {
             playlistModel.findPlaylistsForUser(userId)
                 .then(function (playlists) {
                     res.send(playlists);
