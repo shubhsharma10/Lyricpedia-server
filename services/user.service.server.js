@@ -127,8 +127,9 @@ module.exports = function (app) {
                         return userModel.removeFromFollowing(fbUserId,gfUserId,gfUserName);
                     }
                 })
-                .then(function (result) {
-                    console.log(result);
+                .then(function (updatedCurrentUser) {
+                    console.log(updatedCurrentUser);
+                    req.session['currentUser'] = updatedCurrentUser;
                     res.sendStatus(200);
                 })
                 .catch(function (error) {
