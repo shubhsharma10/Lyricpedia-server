@@ -15,9 +15,9 @@ module.exports = function (app) {
         songModel.findSongById(id)
             .then(function (song) {
                 if(song) {
-                    res.sendStatus(200)
+                    res.send(song)
                 } else {
-                    res.sendStatus(204)
+                    res.send(204)
                 }
             })
     }

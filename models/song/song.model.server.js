@@ -3,6 +3,7 @@ var songSchema = require('./song.schema.server');
 var songModel = mongoose.model('SongModel', songSchema);
 
 function findSongById(songId) {
+    console.log(typeof songId);
     return songModel.findOne({track_id: songId})
         .exec()
         .then(function (song) {
