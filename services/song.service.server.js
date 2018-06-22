@@ -5,6 +5,7 @@ module.exports = function (app) {
     app.put('/api/song/:songId',updateSong);
     app.get('/api/user/song',findSongsForUser);
     app.delete('/api/song/:songId',deleteSong);
+    app.put('/api/song/:songId/translation',updateTranslation);
     
 
     var songModel = require('../models/song/song.model.server');
@@ -108,5 +109,26 @@ module.exports = function (app) {
                     res.sendStatus(404);
                 }
             });
+    }
+    function updateTranslation(req,res) {
+        var currentUser = req.session['currentUser'];
+        var songId = req.params['songId'];
+        if(currentUser && songId) {
+            const translation = req.body['translation'];
+            const userId = currentUser._id;
+            const username = currentUser.username;
+            songModel.updateTranslation(songId, userId, username, translation)
+                .then(function (updatedSong) {
+                    if(updatedSong) {
+                        console.log(updatedSong);
+                        res.json(updatedSong)
+                    } else {
+                        res.sendStatus(500);
+                    }
+                })
+        } else {
+            res.sendStatus(500);
+        }
+
     }
 };

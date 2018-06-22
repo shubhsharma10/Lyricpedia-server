@@ -32,6 +32,37 @@ function findSongsForUser(userId) {
     }});
 }
 
+function updateTranslation(songId,userId,username,transalation) {
+    return findSongById(songId)
+            .then(function(song) {
+                var userExists = false;
+                const existingUsers = song.lot;
+                for(var x = 0;x < existingUsers.length ; x++) {
+                    var userEntry = existingUsers[x];
+                    if(userEntry.userId === userId) {
+                        userExists = true;
+                    }
+                }
+
+                if(!userExists) {
+                    song.lot.push({userId: userId, username: username});
+                }
+                song.translation = transalation;
+                return songModel.findByIdAndUpdate(song._id,song,{new:true})
+                    .exec()
+                    .then(function(updatedSong) {
+                        return updatedSong;
+                    })
+            })
+            .then(function (updatedSong) {
+                return updatedSong;
+            })
+            .catch(function (error) {
+                console.log(error);
+                return error;
+            })
+}
+
 function updateSong(songId,incomingUserId,incomingUsername,rating) {
     return findSongById(songId)
         .then(function(song) {
@@ -95,7 +126,8 @@ var api = {
     findSongById: findSongById,
     updateSong: updateSong,
     findSongsForUser: findSongsForUser,
-    deleteSong: deleteSong
+    deleteSong: deleteSong,
+    updateTranslation: updateTranslation
 };
 
 module.exports = api;
