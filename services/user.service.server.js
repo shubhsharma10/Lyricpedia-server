@@ -7,6 +7,8 @@ module.exports = function (app) {
     app.post('/api/login', login);
     app.post('/api/logout',logout);
     app.get('/api/session',session);
+    app.post('/api/user/follow', follow);
+    app.post('/api/user/unfollow', unfollow);
 
     var userModel = require('../models/user/user.model.server');
 
@@ -84,6 +86,57 @@ module.exports = function (app) {
             .then(function (users) {
                 res.send(users);
             })
+    }
+
+    function follow(req,res) {
+        var currentUser = req.session['currentUser'];
+        if(currentUser) {  // gf implies getting followed(Add to FI)  fb implies followed by(add to
+            const gfUserId = req.body.fuserId;
+            const gfUserName = req.body.fuserName;
+            const fbUserName = currentUser.username;
+            const fbUserId = currentUser._id;
+            userModel.addToFollowers(gfUserId,fbUserId,fbUserName)
+                .then(function(result) {
+                    if(result) {
+                       return userModel.addToFollowing(fbUserId,gfUserId,gfUserName);
+                    }
+                })
+                .then(function (updatedCurrentUser) {
+                    console.log(updatedCurrentUser);
+                    req.session['currentUser'] = updatedCurrentUser;
+                    res.sendStatus(200);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                })
+        } else {
+            res.sendStatus(500);
+        }
+    }
+
+    function unfollow(req,res) {
+        var currentUser = req.session['currentUser'];
+        if(currentUser) {  // gf implies getting followed(Add to FI)  fb implies followed by(add to
+            const gfUserId = req.body.fuserId;
+            const gfUserName = req.body.fuserName;
+            const fbUserName = currentUser.username;
+            const fbUserId = currentUser._id;
+            userModel.removeFromFollowers(gfUserId,fbUserId,fbUserName)
+                .then(function(result) {
+                    if(result) {
+                        return userModel.removeFromFollowing(fbUserId,gfUserId,gfUserName);
+                    }
+                })
+                .then(function (result) {
+                    console.log(result);
+                    res.sendStatus(200);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                })
+        } else {
+            res.sendStatus(500);
+        }
     }
 
     function login(req,res){

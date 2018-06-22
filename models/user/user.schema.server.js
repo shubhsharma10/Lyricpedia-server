@@ -8,7 +8,9 @@ var userSchema = mongoose.Schema({
     lastName: String,
     email: String,
     phoneNumber:String,
-    address:String
+    address:String,
+    followers: [{userId: String, username: String}],
+    following: [{userId: String, username: String}]
 }, {collection: 'user'});
 
 module.exports = userSchema;

@@ -38,13 +38,91 @@ function findAllUsers() {
     return userModel.find();
 }
 
+function addToFollowers(userId, fuserId, fuserName) {
+    return userModel.findById(userId)
+        .then(function (user) {
+            var isPresent = false;
+            for(var index=0;index<user.followers.length;index++) {
+                if(user.followers[index].userId === fuserId) {
+                    isPresent = true;
+                }
+            }
+            if(!isPresent) {
+                var follower = {userId: fuserId, username: fuserName};
+                user.followers.push(follower);
+            }
+            return userModel.findByIdAndUpdate(userId,user,{new:true})
+                .exec()
+                .then(function(updatedUser) {
+                    return updatedUser;
+                })
+        })
+}
+
+function addToFollowing(userId, fuserId, fuserName) {
+    return userModel.findById(userId)
+        .then(function (user) {
+            var isPresent = false;
+            for(var index=0;index<user.following.length;index++) {
+                if(user.following[index].userId === fuserId) {
+                    isPresent = true;
+                }
+            }
+            if(!isPresent) {
+                var following = {userId: fuserId, username: fuserName};
+                user.following.push(following);
+            }
+            return userModel.findByIdAndUpdate(userId,user,{new:true})
+                .exec()
+                .then(function(updatedUser) {
+                    return updatedUser;
+                })
+        })
+}
+
+function removeFromFollowers(userId, fuserId) {
+    return userModel.findById(userId)
+        .then(function (user) {
+            for(var index=0;index<user.followers.length;index++) {
+                if(user.followers[index].userId === fuserId) {
+                    user.followers.splice(index,1);
+                }
+            }
+            return userModel.findByIdAndUpdate(userId,user,{new:true})
+                .exec()
+                .then(function(updatedUser) {
+                    return updatedUser;
+                })
+        })
+}
+
+function removeFromFollowing(userId, fuserId) {
+    return userModel.findById(userId)
+        .then(function (user) {
+            for(var index=0;index<user.following.length;index++) {
+                if(user.following[index].userId === fuserId) {
+                    user.following.splice(index,1);
+                }
+            }
+            return userModel.findByIdAndUpdate(userId,user,{new:true})
+                .exec()
+                .then(function(updatedUser) {
+                    return updatedUser;
+                })
+        })
+}
+
 var api = {
     createUser: createUser,
     findAllUsers: findAllUsers,
     findUserById: findUserById,
     updateUser: updateUser,
     findUserByCredentials: findUserByCredentials,
-    findUserByUsername: findUserByUsername
+    findUserByUsername: findUserByUsername,
+    addToFollowers: addToFollowers,
+    addToFollowing: addToFollowing,
+    removeFromFollowers: removeFromFollowers,
+    removeFromFollowing: removeFromFollowing
 };
 
 module.exports = api;
