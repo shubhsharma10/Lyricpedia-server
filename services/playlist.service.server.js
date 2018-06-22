@@ -5,7 +5,7 @@ module.exports = function (app) {
     app.delete('/api/playlist/:playlistId',deletePlaylist);
     app.post('/api/playlist', createPlaylist);
     app.get('/api/user/playlist', findPlaylistsForUser);
-    app.put('/api/playlist/add',addToPlaylist);
+    app.put('/api/playlist/:playlistId/add',addToPlaylist);
     app.put('/api/playlist/remove',removeFromPlaylist);
     app.put('/api/playlist/:playlistId/remove',removeSongFromPlaylist);
 
@@ -107,13 +107,11 @@ module.exports = function (app) {
     }
 
     function addToPlaylist(req, res){
-        if(req.session['currentUser']) {
-            var userId = req.session['currentUser']._id;
+        var playlistId = req.params['playlistId'];
+        if(playlistId) {
             var trackId = req.body['trackId'];
-            var playListName = req.body['playlistName'];
             var trackName = req.body['trackName'];
-            console.log("Stripped " + trackId + ' ' + trackName + ' playlistName: ' + playListName);
-            playlistModel.addToPlaylist(userId, playListName, trackId, trackName)
+            playlistModel.addToPlaylist(playlistId, trackId, trackName)
                 .then(function (updatedPlaylist) {
                     res.send(updatedPlaylist);
                 })

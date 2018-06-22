@@ -35,8 +35,8 @@ function findPlaylistsForUser(userId) {
     return playlistModel.find({ userId: userId});
 }
 
-function addToPlaylist(userId, playlistName,trackId,trackName) {
-    return findPlaylistByNameAndUserId(playlistName, userId)
+function addToPlaylist(playlistId,trackId,trackName) {
+    return playlistModel.findById(playlistId)
         .then(function(playlist) {
             var existingSongs = playlist.tracks;
             var songIsAlreadyIn = false;
