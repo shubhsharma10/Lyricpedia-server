@@ -31,7 +31,7 @@ function findSongsForUser(userId) {
     }});
 }
 
-function updateSong(songId,incomingUserId,rating) {
+function updateSong(songId,incomingUserId,incomingUsername,rating) {
     return findSongById(songId)
         .then(function(song) {
             var userExists = false;
@@ -61,10 +61,14 @@ function updateSong(songId,incomingUserId,rating) {
             if(!userExists) {
                 if (rating === 'like'){
                     song.likes += 1;
-                    song.listOfUsers.push({userId : incomingUserId, rating : rating});
+                    song.listOfUsers.push({userId : incomingUserId,
+                        username: incomingUsername,
+                        rating : rating});
                 }else{
                     song.dislikes += 1;
-                    song.listOfUsers.push({userId : incomingUserId, rating : rating});
+                    song.listOfUsers.push({userId : incomingUserId,
+                        username: incomingUsername,
+                        rating : rating});
                 }
             }
             return songModel.findByIdAndUpdate(song._id,song,{new:true})

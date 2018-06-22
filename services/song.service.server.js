@@ -93,13 +93,13 @@ module.exports = function (app) {
         }
     }
     function updateSong(req, res){
-        var userId = req.session['currentUser']._id;
+        var currentUser = req.session['currentUser'];
         var rating = req.body['rating'];
         console.log("Stripped "+rating);
         var songId = req.params['songId'];
 
         songModel
-            .updateSong(songId, userId, rating)
+            .updateSong(songId, currentUser._id, currentUser.username, rating)
             .then(function (song) {
                 if (song) {
                     console.log("Checking return at server "+song);
