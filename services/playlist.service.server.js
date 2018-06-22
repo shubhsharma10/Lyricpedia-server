@@ -1,17 +1,19 @@
 module.exports = function (app) {
     app.get('/api/playlist', findAllPlaylists);
-    app.get('/api/playlist/:playlistName', findPlaylistByName);
+    app.get('/api/playlist/:playlistId',findPlaylistById);
+    app.put('/api/playlist/:playlistId',renamePlaylist);
+    app.delete('/api/playlist/:playlistId',deletePlaylist);
     app.post('/api/playlist', createPlaylist);
     app.get('/api/user/playlist', findPlaylistsForUser);
     app.put('/api/playlist/add',addToPlaylist);
     app.put('/api/playlist/remove',removeFromPlaylist);
-    app.delete('/api/playlist/:playlistId',deletePlaylist);
+    app.put('/api/playlist/:playlistId/remove',removeSongFromPlaylist);
 
     var playlistModel = require('../models/playlist/playlist.model.server');
 
-    function findPlaylistByName(req, res) {
-        var playlistName = req.params['playlistName'];
-        playlistModel.findPlaylistByName(playlistName)
+    function findPlaylistById(req, res) {
+        var playlistId = req.params['playlistId'];
+        playlistModel.findPlaylistById(playlistId)
             .then(function (playlist) {
                 if(playlist) {
                     res.send(playlist)
@@ -31,6 +33,38 @@ module.exports = function (app) {
                 .catch(function (error) {
                     res.sendStatus(500).send(error);
                 });
+        } else {
+            res.sendStatus(500);
+        }
+    }
+
+    function renamePlaylist(req,res) {
+        var playlistId = req.params['playlistId'];
+        if (playlistId) {
+            const newName = req.body.newName;
+            playlistModel.renamePlaylist(playlistId,newName)
+                .then(function(updatedPlaylist) {
+                    res.send(updatedPlaylist);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                })
+        } else {
+            res.sendStatus(500);
+        }
+    }
+
+    function removeSongFromPlaylist(req,res){
+        var playlistId = req.params['playlistId'];
+        if (playlistId) {
+            const trackId = req.body.trackId;
+            playlistModel.removeSongFromPlaylist(playlistId,trackId)
+                .then(function(updatedPlaylist) {
+                    res.send(updatedPlaylist);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                })
         } else {
             res.sendStatus(500);
         }

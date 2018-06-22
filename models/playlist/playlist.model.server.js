@@ -9,6 +9,13 @@ function findPlaylistByName(playlistName) {
         })
 }
 
+function findPlaylistById(playlistId) {
+    return playlistModel.findById(playlistId)
+        .then(function (playlist) {
+            return playlist;
+        })
+}
+
 function findPlaylistByNameAndUserId(playlistName, userId) {
     return playlistModel.findOne({name: playlistName, userId: userId})
         .then(function (playlist) {
@@ -65,6 +72,46 @@ function deletePlaylist(playlistId) {
         });
 }
 
+function renamePlaylist(playlistId,newName) {
+    return playlistModel.findByIdAndUpdate(playlistId,
+        {$set:
+            { name : newName }
+        })
+        .exec()
+        .then(function(updatedPlaylist){
+            return updatedPlaylist;
+        });
+}
+
+function removeSongFromPlaylist(playlistId,trackId) {
+    return playlistModel.findById(playlistId)
+        .then(function(playlist) {
+            var existingSongs = playlist.tracks;
+            var songIndex = -1;
+            for(var i=0;i<existingSongs.length;i++) {
+                if(existingSongs[i].track_id === trackId) {
+                    songIndex = i;
+                }
+            }
+            if(songIndex > -1) {
+                playlist.tracks.splice(songIndex,1);
+            }
+            return playlistModel.findByIdAndUpdate(playlist._id,playlist,{new:true})
+                .exec()
+                .then(function(updatedPlayList) {
+                    return updatedPlayList;
+                });
+        })
+        .then(function (updatedPlayList) {
+            console.log(updatedPlayList);
+            return updatedPlayList;
+        })
+        .catch(function (error) {
+            console.log(error);
+            return error;
+        })
+}
+
 function removeFromPlaylist(userId, playlistName,trackId) {
     return findPlaylistByNameAndUserId(userId, playlistName)
         .then(function(playlist) {
@@ -92,8 +139,6 @@ function removeFromPlaylist(userId, playlistName,trackId) {
             console.log(error);
             return error;
         })
-
-
 }
 
 function removeSongFromAllPlaylists(trackId) {
@@ -137,9 +182,12 @@ var api = {
     createPlaylist: createPlaylist,
     findAllPlaylists: findAllPlaylists,
     findPlaylistByName: findPlaylistByName,
+    findPlaylistById: findPlaylistById,
     findPlaylistsForUser: findPlaylistsForUser,
     addToPlaylist: addToPlaylist,
     removeFromPlaylist: removeFromPlaylist,
+    removeSongFromPlaylist: removeSongFromPlaylist,
+    renamePlaylist: renamePlaylist,
     deletePlayList: deletePlaylist,
     removeSongFromAllPlaylists: removeSongFromAllPlaylists
 };
