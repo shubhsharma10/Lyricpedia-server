@@ -4,6 +4,7 @@ var songModel = mongoose.model('SongModel', songSchema);
 
 function findSongById(songId) {
     return songModel.findOne({track_id: songId})
+        .exec()
         .then(function (song) {
             return song;
         })
@@ -11,6 +12,13 @@ function findSongById(songId) {
 
 function createSong(song) {
     return songModel.create(song);
+}
+
+function deleteSong(songId) {
+    return findSongById(songId)
+        .then(function (song) {
+            return song.remove();
+        })
 }
 
 function findAllSongs() {
@@ -81,7 +89,8 @@ var api = {
     findAllSongs: findAllSongs,
     findSongById: findSongById,
     updateSong: updateSong,
-    findSongsForUser: findSongsForUser
+    findSongsForUser: findSongsForUser,
+    deleteSong: deleteSong
 };
 
 module.exports = api;

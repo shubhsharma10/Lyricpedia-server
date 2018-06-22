@@ -4,9 +4,11 @@ module.exports = function (app) {
     app.post('/api/song', createSong);
     app.put('/api/song/:songId',updateSong);
     app.get('/api/user/song',findSongsForUser);
+    app.delete('/api/song/:songId',deleteSong);
     
 
     var songModel = require('../models/song/song.model.server');
+    var playlistModel = require('../models/playlist/playlist.model.server');
     var mongoose = require('mongoose');
     function findSongById(req, res) {
         var id = req.params['songId'];
@@ -30,6 +32,24 @@ module.exports = function (app) {
             })
             .catch(function (error) {
                 console.log(error);
+            });
+    }
+
+    function deleteSong(req,res) {
+        var trackId = req.params['songId'];
+        playlistModel
+            .removeSongFromAllPlaylists(trackId)
+            .then(function(result) {
+                if(result) {
+                    return songModel.deleteSong(trackId);
+                }
+                throw new Error('Cancel enrollments for all failed');
+            })
+            .then(function () {
+                res.sendStatus(200);
+            })
+            .catch(function(error){
+                res.sendStatus(500).send(error);
             });
     }
 

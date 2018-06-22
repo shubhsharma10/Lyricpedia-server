@@ -5,7 +5,7 @@ module.exports = function (app) {
     app.get('/api/user/playlist', findPlaylistsForUser);
     app.put('/api/playlist/add',addToPlaylist);
     app.put('/api/playlist/remove',removeFromPlaylist);
-    //app.delete('/api/playlist/:playlistName',deletePlaylist);
+    app.delete('/api/playlist/:playlistId',deletePlaylist);
 
     var playlistModel = require('../models/playlist/playlist.model.server');
 
@@ -19,6 +19,21 @@ module.exports = function (app) {
                     res.sendStatus(204)
                 }
             })
+    }
+
+    function deletePlaylist(req,res) {
+        var playlistId = req.params['playlistId'];
+        if (playlistId) {
+            playlistModel.deletePlayList(playlistId)
+                .then(function () {
+                    res.sendStatus(200);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                });
+        } else {
+            res.sendStatus(500);
+        }
     }
 
     function createPlaylist(req, res) {

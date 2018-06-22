@@ -57,11 +57,12 @@ function addToPlaylist(userId, playlistName,trackId,trackName) {
         })
 }
 
-function deletePlaylist(playlistName) {
-    return findPlaylistByName(playlistName)
+function deletePlaylist(playlistId) {
+    return playlistModel.findById(playlistId)
+        .exec()
         .then(function (playlist) {
             return playlist.remove();
-        })
+        });
 }
 
 function removeFromPlaylist(userId, playlistName,trackId) {
@@ -95,6 +96,43 @@ function removeFromPlaylist(userId, playlistName,trackId) {
 
 }
 
+function removeSongFromAllPlaylists(trackId) {
+    return playlistModel.find({tracks: {$elemMatch: {track_id: trackId}}})
+        .exec()
+        .then(function(playlists) {
+            for(var i=0;i<playlists.length;i++) {
+                var playlist = playlists[i];
+                var existingSongs = playlist.tracks;
+                var songIndex = -1;
+                for(var j=0;j<existingSongs.length;j++) {
+                    if(existingSongs[j].track_id.toString() === trackId) {
+                        songIndex = j;
+                    }
+                }
+                if(songIndex > -1) {
+                    playlist.tracks.splice(songIndex,1);
+                }
+            }
+
+            return Promise.all(
+                playlists.map(function (newPlaylist) {
+                    var playlistId = newPlaylist._id;
+                    return playlistModel.findByIdAndUpdate(playlistId,newPlaylist,{new:true});
+                })
+            )
+        })
+        .then(function (updatedPlayLists) {
+            console.log(updatedPlayLists);
+            return updatedPlayLists;
+        })
+        .catch(function (error) {
+            console.log(error);
+            return error;
+        })
+
+
+}
+
 var api = {
     createPlaylist: createPlaylist,
     findAllPlaylists: findAllPlaylists,
@@ -102,7 +140,8 @@ var api = {
     findPlaylistsForUser: findPlaylistsForUser,
     addToPlaylist: addToPlaylist,
     removeFromPlaylist: removeFromPlaylist,
-    deletePlayList: deletePlaylist
+    deletePlayList: deletePlaylist,
+    removeSongFromAllPlaylists: removeSongFromAllPlaylists
 };
 
 module.exports = api;
