@@ -32,7 +32,7 @@ function findSongsForUser(userId) {
     }});
 }
 
-function updateTranslation(songId,userId,username,transalation) {
+function updateTranslation(songId,userId,transalation) {
     return findSongById(songId)
             .then(function(song) {
                 var userExists = false;
@@ -45,7 +45,7 @@ function updateTranslation(songId,userId,username,transalation) {
                 }
 
                 if(!userExists) {
-                    song.lot.push({userId: userId, username: username});
+                    song.lot.push({userId: userId});
                 }
                 song.translation = transalation;
                 return songModel.findByIdAndUpdate(song._id,song,{new:true})
@@ -63,7 +63,7 @@ function updateTranslation(songId,userId,username,transalation) {
             })
 }
 
-function updateSong(songId,incomingUserId,incomingUsername,rating) {
+function updateSong(songId,incomingUserId,rating) {
     return findSongById(songId)
         .then(function(song) {
             var userExists = false;
@@ -94,12 +94,10 @@ function updateSong(songId,incomingUserId,incomingUsername,rating) {
                 if (rating === 'like'){
                     song.likes += 1;
                     song.listOfUsers.push({userId : incomingUserId,
-                        username: incomingUsername,
                         rating : rating});
                 }else{
                     song.dislikes += 1;
                     song.listOfUsers.push({userId : incomingUserId,
-                        username: incomingUsername,
                         rating : rating});
                 }
             }

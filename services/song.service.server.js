@@ -102,7 +102,7 @@ module.exports = function (app) {
         var songId = req.params['songId'];
 
         songModel
-            .updateSong(songId, currentUser._id, currentUser.username, rating)
+            .updateSong(songId, currentUser._id, rating)
             .then(function (song) {
                 if (song) {
                     console.log("Checking return at server "+song);
@@ -118,8 +118,7 @@ module.exports = function (app) {
         if(currentUser && songId) {
             const translation = req.body['translation'];
             const userId = currentUser._id;
-            const username = currentUser.username;
-            songModel.updateTranslation(songId, userId, username, translation)
+            songModel.updateTranslation(songId, userId, translation)
                 .then(function (updatedSong) {
                     if(updatedSong) {
                         console.log(updatedSong);

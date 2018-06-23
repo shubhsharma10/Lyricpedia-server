@@ -8,12 +8,9 @@ var songSchema = mongoose.Schema({
     translation: String,
     listOfUsers: [{
                     userId: String,
-                    username: String,
                     rating: String
                     }],
-    lot: [{
-        userId: String,
-        username: String }]
+    lot: [{ userId: String }]
 }, {collection: 'songs'});
 
 module.exports = songSchema;
