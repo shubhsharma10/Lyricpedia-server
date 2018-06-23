@@ -120,6 +120,28 @@ function updateSong(songId,incomingUserId,incomingUsername,rating) {
 
 }
 
+function findTranslatedSongsByUser(userId) {
+    return songModel.find({lot: {$elemMatch: {userId: userId}}})
+        .exec()
+        .then(function (songs) {
+            return songs;
+        })
+        .catch(function (error) {
+            return error;
+        })
+}
+
+function findAllTranslatedSongs() {
+    return songModel.find({lot: {$not: {$size : 0}}})
+        .exec()
+        .then(function (translatedSongs) {
+            return translatedSongs;
+        })
+        .catch(function (error) {
+            return error;
+        })
+}
+
 var api = {
     createSong: createSong,
     findAllSongs: findAllSongs,
@@ -127,7 +149,9 @@ var api = {
     updateSong: updateSong,
     findSongsForUser: findSongsForUser,
     deleteSong: deleteSong,
-    updateTranslation: updateTranslation
+    updateTranslation: updateTranslation,
+    findTranslatedSongsByUser: findTranslatedSongsByUser,
+    findAllTranslatedSongs: findAllTranslatedSongs
 };
 
 module.exports = api;

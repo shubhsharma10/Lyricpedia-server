@@ -6,6 +6,8 @@ module.exports = function (app) {
     app.get('/api/user/song',findSongsForUser);
     app.delete('/api/song/:songId',deleteSong);
     app.put('/api/song/:songId/translation',updateTranslation);
+    app.get('/api/user/translated',findTranslatedSongsByUser);
+    app.get('/api/translated',findAllTranslatedSongs);
     
 
     var songModel = require('../models/song/song.model.server');
@@ -129,6 +131,30 @@ module.exports = function (app) {
         } else {
             res.sendStatus(500);
         }
+    }
 
+    function findTranslatedSongsByUser(req,res) {
+        var currentUser = req.session['currentUser'];
+        if(currentUser) {
+            songModel.findTranslatedSongsByUser(currentUser._id)
+                .then(function (translatedSongs) {
+                    res.send(translatedSongs);
+                })
+                .catch(function (error) {
+                    res.sendStatus(500).send(error);
+                })
+        } else {
+            res.sendStatus(500);
+        }
+    }
+
+    function findAllTranslatedSongs(req,res) {
+        songModel.findAllTranslatedSongs()
+            .then(function (translatedSongs) {
+                res.send(translatedSongs);
+            })
+            .catch(function (error) {
+                res.sendStatus(500).send(error);
+            })
     }
 };
