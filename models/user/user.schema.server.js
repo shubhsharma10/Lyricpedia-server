@@ -9,8 +9,8 @@ var userSchema = mongoose.Schema({
     email: String,
     phoneNumber:String,
     address:String,
-    followers: [{userId: String, username: String}],
-    following: [{userId: String, username: String}]
+    followers: [{userId: String}],
+    following: [{userId: String}]
 }, {collection: 'user'});
 
 module.exports = userSchema;

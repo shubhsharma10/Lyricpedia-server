@@ -46,11 +46,25 @@ function updateUser(userId,user) {
             });
 }
 
+function deleteUser(userId) {
+    return findUserById(userId)
+        .then(function (user) {
+            return user.remove();
+        })
+}
+
 function findAllUsers() {
     return userModel.find();
 }
 
-function addToFollowers(userId, fuserId, fuserName) {
+function findUsernames(listOfUserIds) {
+    return Promise.all(
+        listOfUserIds.map(function (userId) {
+            return userModel.findById(userId);
+        }));
+}
+
+function addToFollowers(userId, fuserId) {
     return userModel.findById(userId)
         .then(function (user) {
             var isPresent = false;
@@ -60,7 +74,7 @@ function addToFollowers(userId, fuserId, fuserName) {
                 }
             }
             if(!isPresent) {
-                var follower = {userId: fuserId, username: fuserName};
+                var follower = {userId: fuserId};
                 user.followers.push(follower);
             }
             return userModel.findByIdAndUpdate(userId,user,{new:true})
@@ -71,7 +85,7 @@ function addToFollowers(userId, fuserId, fuserName) {
         })
 }
 
-function addToFollowing(userId, fuserId, fuserName) {
+function addToFollowing(userId, fuserId) {
     return userModel.findById(userId)
         .then(function (user) {
             var isPresent = false;
@@ -81,7 +95,7 @@ function addToFollowing(userId, fuserId, fuserName) {
                 }
             }
             if(!isPresent) {
-                var following = {userId: fuserId, username: fuserName};
+                var following = {userId: fuserId};
                 user.following.push(following);
             }
             return userModel.findByIdAndUpdate(userId,user,{new:true})
@@ -89,6 +103,36 @@ function addToFollowing(userId, fuserId, fuserName) {
                 .then(function(updatedUser) {
                     return updatedUser;
                 })
+        })
+}
+
+function removeUserFromFollowersAndFollowing(userId) {
+    return userModel.find({'$or': [
+                                {followers: {$elemMatch: {userId: userId}}},
+                                {following: {$elemMatch: {userId: userId}}}
+                            ]})
+        .then(function(users) {
+            for(var i = 0; i < users.length; i++){
+                const userFRIndex = users[i].followers
+                                            .map(function (x) { return x.userId.toString(); })
+                                            .indexOf(userId);
+                if(userFRIndex > -1){
+                    console.log('found index, now splicing it');
+                    users[i].followers.splice(userFRIndex,1);
+                }
+                const userFIIndex = users[i].following
+                    .map(function (x) { return x.userId.toString(); })
+                    .indexOf(userId);
+                if(userFIIndex > -1){
+                    console.log('found index, now splicing it');
+                    users[i].following.splice(userFIIndex,1);
+                }
+            }
+            return Promise.all(
+                users.map(function (updatedUser) {
+                    return userModel.findByIdAndUpdate(updatedUser._id,updatedUser,{new:true});
+                })
+            )
         })
 }
 
@@ -129,13 +173,16 @@ var api = {
     findAllUsers: findAllUsers,
     findUserById: findUserById,
     updateUser: updateUser,
+    deleteUser: deleteUser,
     findUserByCredentials: findUserByCredentials,
     findUserByUsername: findUserByUsername,
     addToFollowers: addToFollowers,
     addToFollowing: addToFollowing,
     removeFromFollowers: removeFromFollowers,
     removeFromFollowing: removeFromFollowing,
-    findUserByUsernameFNOrLN: findUserByUsernameFNOrLN
+    findUserByUsernameFNOrLN: findUserByUsernameFNOrLN,
+    removeUserFromFollowersAndFollowing: removeUserFromFollowersAndFollowing,
+    findUsernames: findUsernames
 };
 
 module.exports = api;

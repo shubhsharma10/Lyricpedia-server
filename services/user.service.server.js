@@ -1,7 +1,11 @@
 module.exports = function (app) {
     app.get('/api/user', findAllUsers);
     app.get('/api/user/:userId', findUserById);
+    app.put('/api/usernames',findUsernames);
+    app.delete('/api/user/:userId',deleteUser);
+    app.put('/api/user/:userId', updateUser);
     app.post('/api/user', createUser);
+    app.post('/api/user/add', addUser);
     app.get('/api/profile', profile);
     app.put('/api/profile', updateProfile);
     app.post('/api/login', login);
@@ -11,6 +15,8 @@ module.exports = function (app) {
     app.post('/api/user/unfollow', unfollow);
 
     var userModel = require('../models/user/user.model.server');
+    var songModel = require('../models/song/song.model.server');
+    var playlistModel = require('../models/playlist/playlist.model.server');
 
     function findUserById(req, res) {
         var id = req.params['userId'];
@@ -57,6 +63,41 @@ module.exports = function (app) {
             });
     }
 
+    function updateUser(req,res) {
+        var userId = req.params['userId'];
+        var newUser = req.body;
+        userModel.updateUser(userId,newUser)
+            .then(function (user) {
+                res.json(user);
+            })
+            .catch(function(error){
+                res.sendStatus(500).send(error);
+            });
+    }
+
+    function addUser(req,res) {
+        var user = req.body;
+        userModel.findUserByUsername(user.username)
+            .then(function (result) {
+                if(result){
+                    console.log('Username already exists');
+                    res.sendStatus(422);
+                }
+                else{
+                    console.log('user not found');
+                    return userModel.createUser(user);
+                }
+            })
+            .then(function(user) {
+                if(user) {
+                    res.send(user);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
     function createUser(req, res) {
         var user = req.body;
         userModel.findUserByUsername(user.username)
@@ -81,6 +122,30 @@ module.exports = function (app) {
             });
     }
 
+    function deleteUser(req,res) {
+        var userId = req.params['userId'];
+        songModel
+            .removeUserFromAllSongEntries(userId)
+            .then(function(result) {
+                console.log(result);
+                return playlistModel.removePlaylistsForUser(userId);
+            })
+            .then(function(result) {
+                console.log(result);
+                return userModel.removeUserFromFollowersAndFollowing(userId);
+            })
+            .then(function () {
+                return userModel.deleteUser(userId);
+            })
+            .then(function (result) {
+                console.log(result);
+                res.sendStatus(200);
+            })
+            .catch(function(error){
+                res.sendStatus(500).send(error);
+            });
+    }
+
     function findAllUsers(req, res) {
         if(req.query.queryString) {
             const queryString = req.query.queryString;
@@ -97,17 +162,26 @@ module.exports = function (app) {
         }
     }
 
+    function findUsernames(req,res) {
+        var listOfUserIds = req.body.listOfUserIds;
+        userModel.findUsernames(listOfUserIds)
+            .then(function (result) {
+                res.send(result);
+            })
+            .catch(function (error) {
+                res.sendStatus(500).send(error);
+            })
+    }
+
     function follow(req,res) {
         var currentUser = req.session['currentUser'];
         if(currentUser) {  // gf implies getting followed(Add to FI)  fb implies followed by(add to
             const gfUserId = req.body.fuserId;
-            const gfUserName = req.body.fuserName;
-            const fbUserName = currentUser.username;
             const fbUserId = currentUser._id;
-            userModel.addToFollowers(gfUserId,fbUserId,fbUserName)
+            userModel.addToFollowers(gfUserId,fbUserId)
                 .then(function(result) {
                     if(result) {
-                       return userModel.addToFollowing(fbUserId,gfUserId,gfUserName);
+                       return userModel.addToFollowing(fbUserId,gfUserId);
                     }
                 })
                 .then(function (updatedCurrentUser) {
@@ -127,13 +201,11 @@ module.exports = function (app) {
         var currentUser = req.session['currentUser'];
         if(currentUser) {  // gf implies getting followed(Add to FI)  fb implies followed by(add to
             const gfUserId = req.body.fuserId;
-            const gfUserName = req.body.fuserName;
-            const fbUserName = currentUser.username;
             const fbUserId = currentUser._id;
-            userModel.removeFromFollowers(gfUserId,fbUserId,fbUserName)
+            userModel.removeFromFollowers(gfUserId,fbUserId)
                 .then(function(result) {
                     if(result) {
-                        return userModel.removeFromFollowing(fbUserId,gfUserId,gfUserName);
+                        return userModel.removeFromFollowing(fbUserId,gfUserId);
                     }
                 })
                 .then(function (updatedCurrentUser) {

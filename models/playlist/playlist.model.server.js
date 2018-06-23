@@ -64,6 +64,18 @@ function addToPlaylist(playlistId,trackId,trackName) {
         })
 }
 
+function removePlaylistsForUser(userId) {
+    return findPlaylistsForUser(userId)
+        .exec()
+        .then(function (playlists) {
+            return Promise.all(
+                playlists.map(function (playlist) {
+                    return playlist.remove();
+                })
+            )
+        })
+}
+
 function deletePlaylist(playlistId) {
     return playlistModel.findById(playlistId)
         .exec()
@@ -184,6 +196,7 @@ var api = {
     findPlaylistByName: findPlaylistByName,
     findPlaylistById: findPlaylistById,
     findPlaylistsForUser: findPlaylistsForUser,
+    removePlaylistsForUser: removePlaylistsForUser,
     addToPlaylist: addToPlaylist,
     removeFromPlaylist: removeFromPlaylist,
     removeSongFromPlaylist: removeSongFromPlaylist,

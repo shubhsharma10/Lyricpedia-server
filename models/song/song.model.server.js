@@ -131,6 +131,45 @@ function findTranslatedSongsByUser(userId) {
         })
 }
 
+function removeUserFromAllSongEntries(userId) {
+    return songModel.find({'$or': [
+                                {lot: {$elemMatch: {userId: userId}}},
+                                {listOfUsers: {$elemMatch: {userId: userId}}}
+                                ]})
+        .exec()
+        .then(function (songs) {
+            for (var i = 0 ; i < songs.length ; i++) {
+                const ratingUserIndex = songs[i].listOfUsers
+                                            .map(function (x) { return x.userId.toString(); })
+                                            .indexOf(userId);
+                if(ratingUserIndex > -1) {
+                    var existingRating = songs[i].listOfUsers[ratingUserIndex].rating;
+                    if(existingRating === 'like') {
+                        console.log('found matching like, decrement count');
+                        songs[i].likes -= 1;
+                    } else {
+                        console.log('found matching dislike, decrement count');
+                        songs[i].dislikes -= 1;
+                    }
+                    console.log('remove song entry from rated users');
+                    songs[i].listOfUsers.splice(ratingUserIndex,1);
+                }
+
+                const translatorUserIndex = songs[i].lot
+                                            .map(function (x) { return x.userId; })
+                                            .indexOf(userId);
+                if(translatorUserIndex > -1) {
+                    console.log('found translator user index, remove from translators');
+                    songs[i].lot.splice(translatorUserIndex, 1);
+                }
+                return Promise.all(
+                    songs.map(function (newSong) {
+                        return songModel.findByIdAndUpdate(newSong._id,newSong,{new:true});
+                    })
+                )
+            }})
+}
+
 function findAllTranslatedSongs() {
     return songModel.find({lot: {$not: {$size : 0}}})
         .exec()
@@ -151,7 +190,8 @@ var api = {
     deleteSong: deleteSong,
     updateTranslation: updateTranslation,
     findTranslatedSongsByUser: findTranslatedSongsByUser,
-    findAllTranslatedSongs: findAllTranslatedSongs
+    findAllTranslatedSongs: findAllTranslatedSongs,
+    removeUserFromAllSongEntries: removeUserFromAllSongEntries
 };
 
 module.exports = api;

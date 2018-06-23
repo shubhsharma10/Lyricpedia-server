@@ -7,7 +7,7 @@ var songSchema = mongoose.Schema({
     dislikes: {type: Number, default: 0},
     translation: String,
     listOfUsers: [{
-                    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'UserModel'},
+                    userId: String,
                     username: String,
                     rating: String
                     }],
