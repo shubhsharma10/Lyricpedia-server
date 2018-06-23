@@ -6,6 +6,18 @@ function findUserById(userId) {
     return userModel.findById(userId);
 }
 
+function findUserByUsernameFNOrLN(query) {
+    return userModel.find({'$or': [
+                                {'username':{'$regex':query,  '$options':'i'}},
+                                {'firstName':{'$regex':query, '$options':'i'}},
+                                {'lastName':{'$regex':query,  '$options':'i'}}
+                                ]})
+        .exec()
+        .then(function (users) {
+            return users;
+        })
+}
+
 function createUser(user) {
     return userModel.create(user);
 }
@@ -122,7 +134,8 @@ var api = {
     addToFollowers: addToFollowers,
     addToFollowing: addToFollowing,
     removeFromFollowers: removeFromFollowers,
-    removeFromFollowing: removeFromFollowing
+    removeFromFollowing: removeFromFollowing,
+    findUserByUsernameFNOrLN: findUserByUsernameFNOrLN
 };
 
 module.exports = api;

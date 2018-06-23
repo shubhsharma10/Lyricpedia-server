@@ -82,10 +82,19 @@ module.exports = function (app) {
     }
 
     function findAllUsers(req, res) {
-        userModel.findAllUsers()
-            .then(function (users) {
-                res.send(users);
-            })
+        if(req.query.queryString) {
+            const queryString = req.query.queryString;
+            userModel.findUserByUsernameFNOrLN(queryString)
+                .then(function(users) {
+                    res.send(users);
+                })
+
+        } else {
+            userModel.findAllUsers()
+                .then(function (users) {
+                    res.send(users);
+                })
+        }
     }
 
     function follow(req,res) {
