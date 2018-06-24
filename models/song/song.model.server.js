@@ -174,7 +174,7 @@ function removeUserFromAllSongEntries(userId) {
 }
 
 function findAllTranslatedSongs() {
-    return songModel.find({lot: {$not: {$size : 0}}})
+    return songModel.find({translation: {$ne : null}})
         .exec()
         .then(function (translatedSongs) {
             return translatedSongs;
