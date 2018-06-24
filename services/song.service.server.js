@@ -45,8 +45,9 @@ module.exports = function (app) {
             .then(function(result) {
                 if(result) {
                     return songModel.deleteSong(trackId);
+                } else {
+                    throw new Error('Cancel enrollments for all failed');
                 }
-                throw new Error('Cancel enrollments for all failed');
             })
             .then(function () {
                 res.sendStatus(200);
